@@ -1,4 +1,6 @@
 <script>
+	import { onMount } from "svelte"
+
 	let fileInput;
 	let files;
 	let avatar;
@@ -42,10 +44,9 @@
 		fileList = res.dir;
 		return lisdir;
 	}
-
-  function changeCaption() {
-    document.getElementById('changeMeMofo').innerText = 'Changed';
-  }
+	onMount(async () => {
+		await listFiles()
+	})
 </script>
 
 <!-- <h1>Welcome to SvelteKit</h1> -->
@@ -55,24 +56,33 @@
 	class="hidden"
 	id="file-to-upload"
 	type="file"
-	accept=".png,.jpg"
+	accept="audio/*"
 	bind:files
 	bind:this={fileInput}
 	on:change={() => getBase64(files[0])}
 />
 
-<a href="/calli.png">Download</a>
+<!-- <a href="/calli.png">Download</a> -->
+<button>Upload File</button>
 
-<button on:click={async () => await listFiles()}>List files!</button>
 
 <ol>
 	{#each fileList as filename}
 		<li>{filename}</li>
+		<a href={filename}>Download {filename}</a>
+
+		<figure>
+			<figcaption>{filename}</figcaption>
+			<audio
+				controls
+				src={filename}>
+					<a href={filename}>
+						Download audio
+					</a>
+			</audio>
+		</figure>
+		
+
 	{/each}
 </ol>
-<button on:click={changeCaption}>change it!</button>
 
-<h1 id="changeMeMofo">hallo</h1>
-<h2>hallo</h2>
-<h3>hallo</h3>
-<h4>hallo</h4>
