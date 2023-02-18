@@ -1,8 +1,12 @@
 import { json } from '@sveltejs/kit';
 import fs from 'fs';
+import multer from 'multer'
+
+const upload = multer({ dest: 'static/audio/' });
 
 /** @type {import('./$types').RequestHandler} */
 export async function POST({ request }) {
+
   const data = await request.formData();
   const file = data.get("audio");
   file.write(`static/audio/${file.name}`)
