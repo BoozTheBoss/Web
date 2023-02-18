@@ -1,10 +1,10 @@
 <script>
-	import { onMount } from "svelte"
+	import { onMount } from 'svelte';
 
 	let fileInput;
 	let files;
 	let avatar;
-	let fileList = ['loading...'];
+	let fileList = [];
 
 	function getBase64(image) {
 		const reader = new FileReader();
@@ -15,19 +15,15 @@
 		};
 	}
 
-	async function uploadFunction(imgBase64) {
-		const data = {};
-		const imgData = imgBase64.split(',');
-		data['image'] = imgData[1];
-		console.log(data);
+	async function uploadFunction(event) {
+		console.log(files);
 
 		await fetch(`/upload`, {
 			method: 'POST',
 			headers: {
-				'Content-Type': 'application/json',
-				Accept: 'application/json'
+				'Content-Type': 'multipart/form-data'
 			},
-			body: JSON.stringify(data)
+			body: files
 		});
 	}
 
@@ -45,44 +41,37 @@
 		return lisdir;
 	}
 	onMount(async () => {
-		await listFiles()
-	})
+		await listFiles();
+	});
 </script>
 
 <!-- <h1>Welcome to SvelteKit</h1> -->
 <!--<p>Visit <a href="https://kit.svelte.dev">kit.svelte.dev</a> to read the documentation</p>-->
 
-<input
-	class="hidden"
-	id="file-to-upload"
-	type="file"
-	accept="audio/*"
-	bind:files
-	bind:this={fileInput}
-	on:change={() => getBase64(files[0])}
-/>
+<form method="post" action="/upload" enctype="multipart/form-data">
+	<input
+		class="hidden"
+		id="file-to-upload"
+    name="audio"
+		type="file"
+		accept="audio/*"
+		bind:files
+		bind:this={fileInput}
+	/>
 
-<!-- <a href="/calli.png">Download</a> -->
-<button>Upload File</button>
-
+	<button type="submit">Upload file</button>
+</form>
 
 <ol>
 	{#each fileList as filename}
-		<li>{filename}</li>
-		<a href={filename}>Download {filename}</a>
+		<!-- <li>{filename}</li>
+		<a href="audio/{filename}">Download {filename}</a> -->
 
 		<figure>
 			<figcaption>{filename}</figcaption>
-			<audio
-				controls
-				src={filename}>
-					<a href={filename}>
-						Download audio
-					</a>
+			<audio controls src="audio/{filename}">
+				<a href="audio/{filename}"> Download audio </a>
 			</audio>
 		</figure>
-		
-
 	{/each}
 </ol>
-
