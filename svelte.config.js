@@ -8,7 +8,10 @@ const config = {
       precompress: false,
       envPrefix: '',
       polyfill: true
-    })
+    }),
+    csrf: {
+      checkOrigin: false,
+    }
   }
 };
 
