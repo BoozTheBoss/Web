@@ -42,11 +42,11 @@
 		await listFiles();
 	}
 </script>
-
+<section class="section">
 <!-- upload file: -->
 <form on:submit|preventDefault={uploadFile}>
 	<input class="hidden" id="file-to-upload" name="audio" type="file" accept="audio/*" />
-	<button type="submit">Upload file</button>
+	<button class ="button" type="submit">Upload file</button>
 </form>
 
 <!-- Tabelle: -->
@@ -58,10 +58,12 @@
 				<audio controls src="audio/{filename}">
 					<!-- <a href="audio/{filename}">Download audio</a> -->
 				</audio>
-				<button on:click={() => delteFile(filename)}>DELETE {filename}</button> <!-- fun aufruf mit filename : -->
+				<button class ="button" on:click={() => delteFile(filename)}>DELETE {filename}</button> <!-- fun aufruf mit filename : -->
 			</figure>
 		{/each}
 	</ol>
 {:else}
 	<p>No files yet</p>
 {/if}
+
+</section>
