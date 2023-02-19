@@ -1,6 +1,5 @@
 <script>
 	import { onMount } from 'svelte';
-	
 
 	let fileInput;
 	let files;
@@ -29,17 +28,18 @@
 	}
 
 	async function uploadFile(file) {
-    const fileReader = new FileReader();
+		console.log(file);
+		const fileReader = new FileReader();
 
-    fileReader.onload = function () {
-      const xhr = new XMLHttpRequest();
-      xhr.open('POST', '/upload', true);
-      xhr.setRequestHeader('X-Filename', file.name);
-      xhr.send(this.result);
-    };
+		fileReader.onload = function () {
+			const xhr = new XMLHttpRequest();
+			xhr.open('POST', '/upload', true);
+			xhr.setRequestHeader('x-filename', file.name);
+			xhr.send(this.result);
+		};
 
-    fileReader.readAsArrayBuffer(file);
-  }
+		fileReader.readAsArrayBuffer(file);
+	}
 
 	async function listFiles() {
 		const lisdir = await fetch('/upload', {
@@ -59,22 +59,20 @@
 	});
 </script>
 
-
 <!-- upload file: -->
 <form method="post" action="/upload" enctype="multipart/form-data">
-	<!-- <input
+	<input
 		class="hidden"
 		id="file-to-upload"
-    	name="audio"
+    name="audio"
 		type="file"
 		accept="audio/*"
 		bind:files
 		bind:this={fileInput}
-	/> -->
-	<input type="file" on:change="{(event) => uploadFile(event.target.files[0])}">
+	/>
+	<!-- <input type="file" on:change={(event) => uploadFile(event.target.files[0])} /> -->
 	<button type="submit">Upload file</button>
 </form>
-
 
 <!-- Tabelle: -->
 <ol>

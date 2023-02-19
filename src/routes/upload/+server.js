@@ -1,46 +1,18 @@
 import { json } from '@sveltejs/kit';
 import fs from 'fs';
-import multer from 'multer'
-
-const upload = multer({ dest: 'static/audio/' });
 
 /** @type {import('./$types').RequestHandler} */
-// export async function POST({ request }) {
+export async function POST({ request }) {
+  const formData = await request.formData();
+  const file = formData.get('audio');
 
-//   console.log(request);
+  const filename = file.name;
+  const arraybuffer = await file.arrayBuffer();
+  const buffer = Buffer.from(arraybuffer);
 
-//   let fileData = Buffer.alloc(0);
-
-//   request.on('data', (chunk) => {
-//     fileData = Buffer.concat([fileData, chunk]);
-//   });
-
-//   request.on('end', () => {
-//     const filename = request.headers['x-filename'];
-
-//     // write the file to disk
-//     const newFilePath = 'static/audio/' + filename;
-//     fs.writeFile(newFilePath, fileData, (err) => {
-//       if (err) {
-//         console.error(err);
-//       }
-//         // res.writeHead(500);
-//         // res.end('Error writing file');
-//       // } else {
-//       //   res.writeHead(200);
-//       //   res.end('File uploaded successfully');
-//       // }
-//     });
-//   });
-
-
-
-//   // const data = await request.formData();
-//   // const file = data.get("audio");
-//   // file.write(`static/audio/${file.name}`)
-//   // fs.writeFileSync(`static/audio/${file.name}`, new Buffer(file));
-//   return json({ ok: 200 });
-// }
+  fs.writeFileSync(`static/audio/${filename}`, buffer);
+  return json({ ok: 200 });
+}
 
 /** @type {import('./$types').RequestHandler} */
 export async function GET({ request }) {
