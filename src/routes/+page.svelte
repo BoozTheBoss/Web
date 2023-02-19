@@ -1,44 +1,15 @@
 <script>
 	import { onMount } from 'svelte';
 
-	let fileInput;
-	let files;
-	let avatar;
-	let fileList = [];
+	let fileList;
 
-	// function getBase64(image) {
-	// 	const reader = new FileReader();
-	// 	reader.readAsDataURL(image);
-	// 	reader.onload = (e) => {
-	// 		avatar = e.target.result;
-	// 		uploadFunction(e.target.result);
-	// 	};
-	// }
+	async function uploadFile(event) {
+		const formData = new FormData(event.target);
 
-	async function uploadFunction(event) {
-		console.log(files);
-
-		await fetch(`/upload`, {
+		await fetch('/upload', {
 			method: 'POST',
-			headers: {
-				'Content-Type': 'multipart/form-data'
-			},
-			body: files
+			body: formData
 		});
-	}
-
-	async function uploadFile(file) {
-		console.log(file);
-		const fileReader = new FileReader();
-
-		fileReader.onload = function () {
-			const xhr = new XMLHttpRequest();
-			xhr.open('POST', '/upload', true);
-			xhr.setRequestHeader('x-filename', file.name);
-			xhr.send(this.result);
-		};
-
-		fileReader.readAsArrayBuffer(file);
 	}
 
 	async function listFiles() {
@@ -50,7 +21,6 @@
 			}
 		});
 		const res = await lisdir.json();
-		// res = { ok: 200, dir: [...] }
 		fileList = res.dir;
 		return lisdir;
 	}
@@ -60,30 +30,26 @@
 </script>
 
 <!-- upload file: -->
-<form method="post" action="/upload" enctype="multipart/form-data">
-	<input
-		class="hidden"
-		id="file-to-upload"
-    name="audio"
-		type="file"
-		accept="audio/*"
-		bind:files
-		bind:this={fileInput}
-	/>
-	<!-- <input type="file" on:change={(event) => uploadFile(event.target.files[0])} /> -->
+<form on:submit|preventDefault={uploadFile}>
+	<input class="hidden" id="file-to-upload" name="audio" type="file" accept="audio/*" />
+
 	<button type="submit">Upload file</button>
 </form>
 
 <!-- Tabelle: -->
-<ol>
-	{#each fileList as filename}
-		<!-- <li>{filename}</li>
+{#if fileList}
+	<ol>
+		{#each fileList as filename}
+			<!-- <li>{filename}</li>
 		<a href="audio/{filename}">Download {filename}</a> -->
-		<figure>
-			<figcaption>{filename}</figcaption>
-			<audio controls src="audio/{filename}">
-				<a href="audio/{filename}"> Download audio </a>
-			</audio>
-		</figure>
-	{/each}
-</ol>
+			<figure>
+				<figcaption>{filename}</figcaption>
+				<audio controls src="audio/{filename}">
+					<a href="audio/{filename}">Download audio</a>
+				</audio>
+			</figure>
+		{/each}
+	</ol>
+{:else}
+	<p>No files yet</p>
+{/if}
