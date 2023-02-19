@@ -19,3 +19,12 @@ export async function GET({ request }) {
   const lsdir = fs.readdirSync('static/audio');
   return json({ ok: 200, dir: lsdir });
 }
+
+/** @type {import('./$types').RequestHandler} */
+export async function DELETE({ request }) {
+  const formData = await request.formData();
+  const filename = formData.get('filename');
+  fs.unlinkSync(`static/audio/${filename}`)
+
+  return json({ ok: 200 });
+}
