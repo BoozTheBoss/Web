@@ -2,6 +2,7 @@
 	import { onMount } from 'svelte';
 
 	let fileList;
+	let files = [];
 
 	async function uploadFile(event) {
 		const formData = new FormData(event.target);
@@ -33,7 +34,7 @@
 	async function delteFile(filename) {
 		const formData = new FormData();
 
-		formData.append("filename", filename)
+		formData.append('filename', filename);
 		await fetch('/upload', {
 			method: 'DELETE',
 			body: formData
@@ -42,28 +43,56 @@
 		await listFiles();
 	}
 </script>
+
 <section class="section">
-<!-- upload file: -->
-<form on:submit|preventDefault={uploadFile}>
-	<input class="hidden" id="file-to-upload" name="audio" type="file" accept="audio/*" />
-	<button class ="button" type="submit">Upload file</button>
-</form>
+	<!-- upload file: -->
+	<form on:submit|preventDefault={uploadFile}>
+		<div class="file has-name">
+			<label class="file-label">
+				<input
+					class="file-input"
+					id="file-to-upload"
+					name="audio"
+					type="file"
+					accept="audio/*"
+					bind:files
+				/>
+				<span class="file-cta">
+					<span class="file-icon">
+						<i class="fas fa-upload" />
+					</span>
+					<span class="file-label"> Choose a file… </span>
+				</span>
+				<span class="file-name">
+					{#if files.length > 0}
+						{files[0].name}
+					{:else}
+						no file selected ...
+					{/if}
+				</span>
+			</label>
+		</div>
 
-<!-- Tabelle: -->
-{#if fileList}
-	<ol>
-		{#each fileList as filename}
-			<figure>
-				<figcaption>{filename}</figcaption>
-				<audio controls src="audio/{filename}">
-					<!-- <a href="audio/{filename}">Download audio</a> -->
-				</audio>
-				<button class ="button" on:click={() => delteFile(filename)}>DELETE {filename}</button> <!-- fun aufruf mit filename : -->
-			</figure>
-		{/each}
-	</ol>
-{:else}
-	<p>No files yet</p>
-{/if}
+		<button class="button" type="submit">Upload file</button>
+	</form>
 
+	<div class="">
+		<!-- Tabelle: -->
+		{#if fileList}
+			<ol>
+				{#each fileList as filename}
+					<figure>
+						<figcaption>{filename}</figcaption>
+						<audio controls src="audio/{filename}">
+							<!-- <a href="audio/{filename}">Download audio</a> -->
+						</audio>
+						<button class="button" on:click={() => delteFile(filename)}>DELETE {filename}</button>
+						<!-- fun aufruf mit filename : -->
+					</figure>
+				{/each}
+			</ol>
+		{:else}
+			<p>No files yet</p>
+		{/if}
+	</div>
 </section>
