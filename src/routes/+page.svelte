@@ -1,35 +1,35 @@
 <script>
 	import { onMount } from 'svelte';
 	import Uppy from '@uppy/core';
-  import XHRUpload from '@uppy/xhr-upload';
-  import Dashboard from '@uppy/dashboard';
+	import XHRUpload from '@uppy/xhr-upload';
+	import Dashboard from '@uppy/dashboard';
 
-  let uppy;
+	let uppy;
 
-  function initializeUppy() {
-    uppy = new Uppy({
-      id: 'uppy',
-      autoProceed: true,
-      restrictions: {
-        maxFileSize: 1000000000, // set the maximum file size
-        maxNumberOfFiles: 10 // set the maximum number of files
-      }
-    })
-    .use(XHRUpload, {
-      endpoint: '/upload',
-      fieldName: 'file',
-      formData: true
-    })
-    .use(Dashboard, {
-      id: 'dashboard',
-      target: '#uppy',
-      proudlyDisplayPoweredByUppy: false
-    });
-  }
+	function initializeUppy() {
+		uppy = new Uppy({
+			id: 'uppy',
+			autoProceed: true,
+			restrictions: {
+				maxFileSize: 1000000000, // set the maximum file size
+				maxNumberOfFiles: 10 // set the maximum number of files
+			}
+		})
+			.use(XHRUpload, {
+				endpoint: '/upload',
+				fieldName: 'file',
+				formData: true
+			})
+			.use(Dashboard, {
+				id: 'dashboard',
+				target: '#uppy',
+				proudlyDisplayPoweredByUppy: false
+			});
+	}
 
-  function destroyUppy() {
-    uppy.close();
-  }
+	function destroyUppy() {
+		uppy.close();
+	}
 
 	let fileList;
 	let files = [];
@@ -127,9 +127,8 @@
 	</div>
 </section>
 
-
 <div on:destroy={destroyUppy}>
-	<div id="uppy"></div>
-  </div>
-  
-  <button on:click={initializeUppy}>Select Files</button>
+	<div id="uppy" />
+</div>
+
+<button on:click={initializeUppy}>Select Files</button>
