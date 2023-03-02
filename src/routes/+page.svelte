@@ -1,75 +1,51 @@
 <script>
 	import { onMount } from 'svelte';
-	import Uppy from '@uppy/core';
-	import XHRUpload from '@uppy/xhr-upload';
-	import Dashboard from '@uppy/dashboard';
 
-	let uppy;
-
-	function initializeUppy() {
-		uppy = new Uppy({
-			id: 'uppy',
-			autoProceed: true,
-			restrictions: {
-				maxFileSize: 1000000000, // set the maximum file size
-				maxNumberOfFiles: 10 // set the maximum number of files
-			}
-		})
-			.use(XHRUpload, {
-				endpoint: '/upload',
-				fieldName: 'file',
-				formData: true
-			})
-			.use(Dashboard, {
-				id: 'dashboard',
-				target: '#uppy',
-				proudlyDisplayPoweredByUppy: false
-			});
-	}
-
-	function destroyUppy() {
-		uppy.close();
-	}
-
+	const API_URL = 'http://127.0.0.1:1080/';
 	let fileList;
 	let files = [];
 
+	// `onMount` gets called once at the very start when page is loaded
+	onMount(async () => {
+		await listFiles();
+	});
+
+	// event handler when form is submitted, i.e. "Upload file" button is clicked
+	// calls API with FormData - FormData includes each value from <input> fields
 	async function uploadFile(event) {
 		const formData = new FormData(event.target);
 
-		await fetch('/upload', {
+		formData.append('name', files[0].name);
+
+		await fetch(API_URL, {
 			method: 'POST',
 			body: formData
 		});
 
+		// refresh files after we modified filelist in API
 		await listFiles();
 	}
 
+	// call API to get the current list of files in storage
 	async function listFiles() {
-		const lisdir = await fetch('/upload', {
+		const res = await fetch(API_URL, {
 			method: 'GET',
 			headers: {
 				'Content-Type': 'application/json',
 				Accept: 'application/json'
 			}
 		});
-		const res = await lisdir.json();
-		fileList = res.dir;
-		return lisdir;
+		const resJson = await res.json();
+		fileList = resJson.files;
 	}
-	onMount(async () => {
-		await listFiles();
-	});
 
-	async function delteFile(filename) {
-		const formData = new FormData();
-
-		formData.append('filename', filename);
-		await fetch('/upload', {
-			method: 'DELETE',
-			body: formData
+	// call API to delete a specific file by filename
+	async function deleteFile(filename) {
+		await fetch(`${API_URL}${filename}`, {
+			method: 'DELETE'
 		});
 
+		// refresh files after we modified filelist in API
 		await listFiles();
 	}
 </script>
@@ -82,7 +58,7 @@
 				<input
 					class="file-input"
 					id="file-to-upload"
-					name="audio"
+					name="file"
 					type="file"
 					accept="audio/*"
 					bind:files
@@ -103,21 +79,20 @@
 			</label>
 		</div>
 
-		<button class="button" type="submit">Upload file</button>
+		<button class="button" type="submit"> Upload file </button>
 	</form>
 
+	<!-- file list -->
 	<div class="">
-		<!-- Tabelle: -->
 		{#if fileList}
 			<ol>
 				{#each fileList as filename}
 					<figure>
 						<figcaption>{filename}</figcaption>
-						<audio controls src="audio/{filename}">
-							<!-- <a href="audio/{filename}">Download audio</a> -->
-						</audio>
-						<button class="button" on:click={() => delteFile(filename)}>DELETE {filename}</button>
-						<!-- fun aufruf mit filename : -->
+						<audio controls src="{API_URL}{filename}" />
+						<button class="button" on:click={() => deleteFile(filename)}>
+							DELETE {filename}
+						</button>
 					</figure>
 				{/each}
 			</ol>
@@ -126,17 +101,3 @@
 		{/if}
 	</div>
 </section>
-
-<div on:destroy={destroyUppy}>
-	<div id="uppy" />
-</div>
-
-<button on:click={initializeUppy}>Select Files</button>
-
-
-<h2>Select files to upload h2</h2>
-    <form name="upload" method="POST" enctype="multipart/form-data" action="/upload">
-      <input type="file" name="file1"><br>
-      <input type="submit" name="submit" value="Upload">
-      <input type="hidden" name="test" value="value">
-    </form>
