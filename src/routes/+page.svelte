@@ -132,3 +132,11 @@
 </div>
 
 <button on:click={initializeUppy}>Select Files</button>
+
+
+<h2>Select files to upload h2</h2>
+    <form name="upload" method="POST" enctype="multipart/form-data" action="/upload">
+      <input type="file" name="file1"><br>
+      <input type="submit" name="submit" value="Upload">
+      <input type="hidden" name="test" value="value">
+    </form>
