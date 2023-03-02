@@ -6,7 +6,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 
-#define MAXBUF 1024
+#define MAXBUF 102400
 
 int main(int argc, char *argv[]) {
   int sockfd, newsockfd, portno, clilen;
@@ -40,7 +40,7 @@ int main(int argc, char *argv[]) {
 
   while (1) {
     // Accept incoming connections
-    clilen = sizeof(cli_addr);
+    uint32_t clilen = sizeof(cli_addr);
     newsockfd = accept(sockfd, (struct sockaddr *) &cli_addr, &clilen);
     if (newsockfd < 0) {
       perror("Error accepting connection");
@@ -50,37 +50,30 @@ int main(int argc, char *argv[]) {
     // Read the filename from the client
     bzero(filename, MAXBUF);
     int n = read(newsockfd, filename, MAXBUF);
+    printf("printing filenames: %s", filename);
+    printf("printing size: %d", n);
     if (n < 0) {
       perror("Error reading filename");
       exit(1);
     }
 
-    // Open the file for writing
-    int fd = open(filename, O_CREAT | O_WRONLY | O_TRUNC, S_IRUSR | S_IWUSR);
-    if (fd < 0) {
-      perror("Error opening file");
-      exit(1);
+    // Note: we were able to send a txt file into example.txt
+
+    // TODO: Look in http spec to find out when body starts
+    // TODO: return http response to socket
+
+    FILE *file = fopen("example.txt", "w+");
+    if (file == NULL) {
+    perror("fopen");
+    return 1;
     }
 
-    // Read data from the client and write it to the file
-    while (1) {
-      bzero(buffer, MAXBUF);
-      n = read(newsockfd, buffer, MAXBUF);
-      if (n < 0) {
-        perror("Error reading data");
-        exit(1);
-      }
-      if (n == 0) {
-        break;
-      }
-      if (write(fd, buffer, n) < 0) {
-        perror("Error writing to file");
-        exit(1);
-      }
-    }
+    // Write some text to the file
+    fputs(filename, file);
 
-    // Close the file and the socket
-    close(fd);
+    // Close the file
+    fclose(file);
+
     close(newsockfd);
   }
 
