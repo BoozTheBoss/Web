@@ -16,10 +16,11 @@ static char encoding_table[] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',
 static char *decoding_table = NULL;
 static int mod_table[] = {0, 2, 1};
 
-int base64_size(size_t input_size)
+int getBase64_size(size_t input_size)
 {
   return 4 * ((input_size + 2) / 3);
 }
+
 
 char *base64_encode(const unsigned char *data,
                     size_t input_length,
@@ -132,7 +133,7 @@ int main()
   fseek(fileptr, 0L, SEEK_END);
   fileSize = ftell(fileptr);
   fseek(fileptr, 0L, SEEK_SET);
-  fileSize64 = base64_size(fileSize);
+  fileSize64 = getBase64_size(fileSize);
 
   // Allocate space for the entire file content
   file_content = (char *)malloc(fileSize + 1);

@@ -6,13 +6,14 @@
 #include <unistd.h>
 #include <fcntl.h>
 
-#define MAXBUF 102400
+#include "base64converter"
+
 
 int main(int argc, char *argv[]) {
   int sockfd, newsockfd, portno, clilen;
   struct sockaddr_in serv_addr, cli_addr;
-  char buffer[MAXBUF];
-  char filename[MAXBUF];
+  char *receivedData;
+  char *fileContentBase64;
 
   // Create a new socket
   sockfd = socket(AF_INET, SOCK_STREAM, 0);
@@ -47,32 +48,32 @@ int main(int argc, char *argv[]) {
       exit(1);
     }
 
-    // Read the filename from the client
-    bzero(filename, MAXBUF);
-    int n = read(newsockfd, filename, MAXBUF);
-    printf("printing filenames: %s", filename);
-    printf("printing size: %d", n);
-    if (n < 0) {
-      perror("Error reading filename");
+    receivedData = 0;  // TODO: get body
+
+    size_t fileSize64 = 0; // TODO: get size from request // allocate for targetFilePtr
+
+
+    // Read the fileContentBase64 from the client
+    bzero(fileContentBase64, fileSize64);
+    int fileSize = read(newsockfd, fileContentBase64, fileSize64);
+    printf("printing filenames: %s", fileContentBase64);
+    printf("printing size: %d", fileSize);
+    if (fileSize < 0) {
+      perror("Error reading receivedData");
       exit(1);
     }
 
-    // Note: we were able to send a txt file into example.txt
+    bzero(file_content, fileSize);
+    file_content = base64_decode(fileContentBase64, fileSize64, &fileSize);
 
-    // TODO: Look in http spec to find out when body starts
-    // TODO: return http response to socket
+    // for(int i=0;i<fileSize;i++) {
+    // }
 
-    FILE *file = fopen("example.txt", "w+");
-    if (file == NULL) {
-    perror("fopen");
-    return 1;
-    }
+    targetFilePtr = fopen("Target.wav", "w");
 
-    // Write some text to the file
-    fputs(filename, file);
+    fwrite(file_content, 1, fileSize, targetFilePtr);
 
-    // Close the file
-    fclose(file);
+    fclose(targetFilePtr);
 
     close(newsockfd);
   }
