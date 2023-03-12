@@ -1,4 +1,4 @@
-#!/bin/env bash
+#!/usr/bin/env bash
 
 if [[ -z "$1" ]]; then
   gcc uploadServer.c -o uploadServer && ./uploadServer
