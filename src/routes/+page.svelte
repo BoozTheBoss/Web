@@ -5,6 +5,33 @@
 	let fileList;
 	let files = [];
 
+	let file;
+  	let base64String;
+
+  function handleFileInput(event) {
+    file = event.target.files[0];
+  }
+
+  function convertToBase64() {
+    if (!file) {
+      console.log('Please select a file');
+      return;
+    }
+
+    const fileReader = new FileReader();
+    fileReader.readAsDataURL(file);
+    fileReader.onloadend = function() {
+      base64String = fileReader.result.split(',')[1];
+      console.log('Base64 string:', base64String);
+
+	  // TODO: FÜRS NÄCHSTE MAL: SCHICK BASE64 AS HOLE TO C SERVER
+	  // calculate number of chunks and send
+	  // TODO: split base64String into chunks and send
+
+    };
+  }
+
+
 	// `onMount` gets called once at the very start when page is loaded
 	onMount(async () => {
 		await listFiles();
@@ -100,4 +127,9 @@
 			<p>No files yet</p>
 		{/if}
 	</div>
+
+	
+	<input type="file" on:change="{handleFileInput}">
+	<button on:click="{convertToBase64}">Convert to Base64</button>
+
 </section>
