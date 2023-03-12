@@ -1,9 +1,11 @@
-#!/bin/env sh
+#!/bin/env bash
 
 if [[ -z "$1" ]]; then
-  gcc notes/base64converter.c -o base64converter && ./base64converter
-elif [[ "$1" == "test" ]]
-  curl -X POST -d @booksBase64 
+  gcc uploadServer.c -o uploadServer && ./uploadServer
+elif [[ "$1" == "teststring" ]]; then
+  curl -X POST -d '{ "value": "Hallo nic" }' localhost:8080
+elif [[ "$1" == "test" ]]; then
+  curl -X POST -d @TargetB64 localhost:8080
 else
   echo "Unknown flag $1"
 fi
