@@ -143,6 +143,8 @@ int main(int argc, char *argv[])
     receivedDataContent = strstr(receivedData, empty_line_token);
     receivedDataContent += strlen(empty_line_token);
 
+    printf("receivedDataContent: %s\n\n", receivedDataContent);
+
     if (receivedDataContent == NULL)
     {
       perror("Could not read body\n");
@@ -151,16 +153,17 @@ int main(int argc, char *argv[])
     size_t fileSize64 = strlen(receivedDataContent);
     size_t realFileSize;
 
-    printf("Received content fileSize64 %zu\n", fileSize64);
-    printf("Received content realFileSize %zu\n", realFileSize);
+    // printf("Received content fileSize64 %zu\n", fileSize64);
+    // printf("Received content realFileSize %zu\n", realFileSize);
 
     unsigned char *decodedContent;
-    bzero(receivedDataContent, realFileSize);
+    // bzero(decodedContent, realFileSize);
+
 
     decodedContent = base64_decode(
         receivedDataContent, fileSize64, &realFileSize);
 
-    printf("New realFileSize %zu\n", realFileSize);
+    // printf("New realFileSize %zu\n", realFileSize);
 
     // Write decoded content to the file
     targetFilePtr = fopen("data.mp3", "w");

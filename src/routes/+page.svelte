@@ -1,7 +1,7 @@
 <script>
 	import { onMount } from 'svelte';
 
-	const API_URL = 'http://127.0.0.1:1080/';
+	const API_URL = 'http://127.0.0.1:8080/';
 	let fileList;
 	let files = [];
 
@@ -26,7 +26,8 @@
 
 	  // TODO: FÜRS NÄCHSTE MAL: SCHICK BASE64 AS HOLE TO C SERVER
 	  // calculate number of chunks and send
-	  // TODO: split base64String into chunks and send
+	  // split base64String into chunks and send
+	  uploadFile(base64String);
 
     };
   }
@@ -39,14 +40,13 @@
 
 	// event handler when form is submitted, i.e. "Upload file" button is clicked
 	// calls API with FormData - FormData includes each value from <input> fields
-	async function uploadFile(event) {
-		const formData = new FormData(event.target);
-
-		formData.append('name', files[0].name);
+	async function uploadFile(base64string) {
+		// const formData = new FormData(event.target);
+		// formData.append('name', files[0].name);
 
 		await fetch(API_URL, {
 			method: 'POST',
-			body: formData
+			body: base64string
 		});
 
 		// refresh files after we modified filelist in API
