@@ -7,7 +7,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 
-#define BUFFSIZE 10240
+#define MAXBUF 8000000
 
 static char encoding_table[] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',
                                 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P',
@@ -75,50 +75,6 @@ unsigned char *base64_decode(const char *data,
   return decoded_data;
 }
 
-int countChar(char *str, char c)
-{
-  char *nextChar = strchr(str, c);
-  int count = 0;
-
-  while (nextChar)
-  {
-    count++;
-    nextChar = strchr(nextChar + 1, c);
-  }
-
-  return count;
-}
-
-char **lineator(char *origin)
-{
-  char *str = (char *)malloc(strlen(origin) + 1);
-  strcpy(str, origin);
-
-  int count = countChar(origin, '\n');
-  char **lines = (char **)malloc(sizeof(char *) * count);
-
-  char *nextLine = strchr(str, '\n');
-  char *currentLine = str;
-
-  int i = 0;
-
-  while (nextLine)
-  {
-    *nextLine = '\0';
-
-    lines[i] = malloc(strlen(currentLine) + 1);
-    strcpy(lines[i], currentLine);
-
-    currentLine = nextLine + 1;
-    nextLine = strchr(currentLine, '\n');
-
-    i++;
-  }
-
-  free(str);
-  return lines;
-}
-
 int main(int argc, char *argv[])
 {
   printf("Starting upload server\n");
@@ -129,6 +85,10 @@ int main(int argc, char *argv[])
 
   const char *empty_line_token = "\r\n\r\n";
   const char *new_line_token = "\r\n";
+
+  char receivedData[MAXBUF];
+
+  FILE *targetFilePtr;
 
   // Create a new socket
   int option = 1;
@@ -169,46 +129,18 @@ int main(int argc, char *argv[])
       exit(1);
     }
 
-    char buffer[BUFFSIZE];
-
-    char *receivedHeaders = (char *)malloc(0);
-
-    bzero(buffer, BUFFSIZE);
-    int headerSize = read(newsockfd, buffer, BUFFSIZE);
-    receivedHeaders = realloc(receivedHeaders, headerSize);
-    sprintf(receivedHeaders, "%s%s", receivedHeaders, buffer);
-
-    printf("Headers:\n");
-    printf("%s\n", receivedHeaders);
-
-    char *contentLengthRest = strstr(receivedHeaders, "Content-Length: ");
-    strtok(contentLengthRest, ":");
-    char *contentLength = strtok(contentLengthRest, ":");
-
-    printf("content length = %s\n", contentLength);
-
-    char *receivedData = (char *)malloc(0);
-    int totalRequestSize = 0;
-    int sizeRead = 0;
-
-    while (sizeRead >= 0)
+    // Read the fileContentBase64 from the client
+    bzero(receivedData, MAXBUF);
+    int requestSize = read(newsockfd, receivedData, MAXBUF);
+    if (requestSize < 0)
     {
-      bzero(buffer, BUFFSIZE);
-      sizeRead = read(newsockfd, buffer, BUFFSIZE);
-
-      totalRequestSize += sizeRead;
-
-      receivedData = realloc(receivedData, totalRequestSize);
-
-      sprintf(receivedData, "%s%s", receivedData, buffer);
-
-      break;
+      perror("Error reading request\n");
+      exit(1);
     }
 
-    printf("Content:\n");
-    printf("%s\n", receivedData);
+    char *receivedDataContent;
 
-    char *receivedDataContent = strstr(receivedData, empty_line_token);
+    receivedDataContent = strstr(receivedData, empty_line_token);
     receivedDataContent += strlen(empty_line_token);
 
     if (receivedDataContent == NULL)
@@ -231,7 +163,7 @@ int main(int argc, char *argv[])
     printf("New realFileSize %zu\n", realFileSize);
 
     // Write decoded content to the file
-    FILE *targetFilePtr = fopen("data.mp3", "w");
+    targetFilePtr = fopen("data.mp3", "w");
     if (targetFilePtr == NULL)
     {
       perror("Error opening file");
@@ -245,7 +177,7 @@ int main(int argc, char *argv[])
     fclose(targetFilePtr);
 
     // return http response
-    char *res = "200 OK";
+    char *res = "HTTP/1.1 200 OK";
     write(newsockfd, res, strlen(res));
     // Close the socket
     close(newsockfd);
