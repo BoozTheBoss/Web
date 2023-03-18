@@ -6,10 +6,13 @@
 
 	let progressElement;
 
+	let UPLOADPROGRESSVALUE = 0;
+
 	async function getFiles() {
 		const response = await fetch(uploadServerHost + 'files');
 		const res = await response.json();
 		files = res.fileList;
+		UPLOADPROGRESSVALUE =0;
 		console.log(files);
 	}
 
@@ -27,7 +30,7 @@
 	}
 
 	function handleUploadProgress(event) {
-		progressElement.value = Math.ceil((event.loaded / event.total) * 100);
+		UPLOADPROGRESSVALUE = Math.ceil((event.loaded / event.total) * 100);
 	}
 
 	async function deleteFromServer(filename) {
@@ -58,7 +61,10 @@
 			</div>
 		</div>
 
-		<progress bind:this={progressElement} class="progress is-info" max="100" />
+		{#if UPLOADPROGRESSVALUE > 0}
+			<progress class="progress is-info" value={UPLOADPROGRESSVALUE} max="100" />
+		{/if}
+
 
 		<br />
 		<hr />
