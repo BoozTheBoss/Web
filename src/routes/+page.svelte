@@ -1,8 +1,10 @@
 <!-- src/routes/index.svelte -->
 <script>
+	const uploadServerHost = 'http://84.54.23.140:8080/';
+
 	let files = [];
 
-	const uploadServerHost = 'http://84.54.23.140:8080/'
+	let progressElement;
 
 	async function getFiles() {
 		const response = await fetch(uploadServerHost + 'files');
@@ -17,11 +19,15 @@
 		const formData = new FormData();
 		formData.append('uploaded_file', selectedFile);
 
-		const response = await fetch(uploadServerHost + 'uploads', {
-			method: 'POST',
-			body: formData
-		});
-		await getFiles();
+		const request = new XMLHttpRequest();
+		request.upload.addEventListener('progress', handleUploadProgress, false);
+		request.addEventListener('load', async () => await getFiles(), false);
+		request.open('POST', uploadServerHost + 'uploads');
+		request.send(formData);
+	}
+
+	function handleUploadProgress(event) {
+		progressElement.value = Math.ceil((event.loaded / event.total) * 100);
 	}
 
 	async function deleteFromServer(filename) {
@@ -52,6 +58,8 @@
 			</div>
 		</div>
 
+		<progress bind:this={progressElement} class="progress is-info" max="100" />
+
 		<br />
 		<hr />
 		<h2>Uploaded Files:</h2>
@@ -71,7 +79,7 @@
 					<tr>
 						<td>{file}</td>
 						<td>
-							<audio controls src= "{uploadServerHost}files/{file}">
+							<audio controls src="{uploadServerHost}files/{file}">
 								<a class="forceFontColor" href="{uploadServerHost}files/{file}">Download</a>
 							</audio>
 						</td>
