@@ -1,6 +1,6 @@
 <!-- src/routes/index.svelte -->
 <script>
-	const uploadServerHost = 'https://84.54.23.140:8080/';
+	const uploadServerHost = 'http://84.54.23.140:8080/';
 	// const uploadServerHost = 'http://localhost:8080/';
 
 	let files = [];
