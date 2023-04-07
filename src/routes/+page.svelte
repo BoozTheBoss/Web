@@ -43,8 +43,10 @@
 		await getFiles();
 	}
 
-	function loginHandler() {
-		loginHeader = 'Basic ' + btoa(username + ':' + password);
+	function loginHandler(event) {
+		if (event.key === 'Enter' || event.type === 'click') {
+			loginHeader = 'Basic ' + btoa(username + ':' + password);
+		}
 	}
 </script>
 
@@ -69,6 +71,7 @@
 							class="input is-success"
 							type="password"
 							placeholder="Password"
+							on:keydown={loginHandler}
 						/>
 						<span class="icon is-small is-left">
 							<i class="fas fa-envelope" />
@@ -87,7 +90,9 @@
 				<div class="field-body">
 					<div class="field">
 						<div class="control">
-							<button on:click={loginHandler} class="button is-primary"> Login </button>
+							<button on:click={loginHandler} on:keypress={loginHandler} class="button is-primary">
+								Login
+							</button>
 						</div>
 					</div>
 				</div>
@@ -137,7 +142,8 @@
 					<tr>
 						<td>{file}</td>
 						<td>
-							<audio controls src="{uploadServerHost}files/{file}">
+							<!-- <audio controls src="{uploadServerHost}files/{file}"> -->
+							<audio controls controlsList="nodownload" src="{uploadServerHost}files/{file}">
 								<a class="forceFontColor" href="{uploadServerHost}files/{file}">Download</a>
 							</audio>
 						</td>
